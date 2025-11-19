@@ -46,7 +46,7 @@
       await authStore.login(username.value, password.value);
       username.value = "";
       password.value = "";
-      router.push("/notes");
+      router.push("/");
 
     } catch (err) {
       errors.value.shared = authStore.error || "Login failed";
