@@ -1,15 +1,18 @@
-<script setup>
+<script setup lang="ts">
   import { ref } from "vue";
   import { z } from "zod";
+  import { useAuthStore } from "@/stores/auth";
+  import { useRouter } from "vue-router";
+
+  const authStore = useAuthStore()
+  const router = useRouter()
 
   const loginSchema = z.object({
     username: z
       .string()
       .min(3, "Username must be at least 3 characters"),
     password: z.string().min(6, "Password must be at least 6 characters"),
-    // TODO: to sync with the signup logic
   });
-
 
   // -- formdata ---
   const username = ref("");
@@ -32,18 +35,25 @@
 
     if (!result.success) {
       result.error.issues.forEach((err) => {
-        errors.value[err.path[0]] = err.message;
+        console.log("err", err);
       });
       return;
     }
 
     isLoading.value = true;
 
-    try {
-      alert("Login successful!");
-    } finally {
-      isLoading.value = false;
+  try {
+      await authStore.login(username.value, password.value);
+      username.value = "";
+      password.value = "";
+      router.push("/notes");
+
+    } catch (err) {
+      errors.value.shared = authStore.error || "Login failed";
+      console.log("authStore.error", authStore.error);
     }
+
+    isLoading.value = authStore.$state.loading
   };
 
 </script>
@@ -63,6 +73,7 @@
         <div>
           <label class="block text-sm mb-1">Username</label>
           <input
+            autocomplete="username"
             type="text"
             v-model="username"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none"
@@ -79,6 +90,7 @@
         <div>
           <label class="block text-sm mb-1">Password</label>
           <input
+            autocomplete="password"
             type="password"
             v-model="password"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none"
@@ -89,7 +101,7 @@
           </p>
         </div>
 
-        <p v-if="errors.shared" class="text-(--danger) text-sm text-center">
+        <p v-if="errors.shared" class="text-(--danger) text-sm text-left">
           {{ errors.shared }}
         </p>
 
