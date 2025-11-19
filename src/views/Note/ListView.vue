@@ -4,7 +4,8 @@
   import { Pencil, Trash } from "lucide-vue-next";
 
   const notesStore = useNotesStore();
-  const showModal = ref(false);
+  const detailModal = ref(false);
+  const showModal = ref(false); // for both create and update
   const deleteConfirmation = ref(false);
   const editNoteId = ref(null);
   const selectedNote = ref(null);
@@ -55,6 +56,13 @@
     form.content = "";
   };
 
+
+  // detail
+  const openDetailModal = (note) => {
+    selectedNote.value = note
+    detailModal.value = true
+  }
+
   // modal handling
   const openEditModal = (note) => {
     editNoteId.value = note.id;
@@ -63,11 +71,14 @@
     showModal.value = true;
   };
 
-  // for edit and create
+  // for all modal and reset form, selectedNote
   const closeModal = () => {
     showModal.value = false;
+    deleteConfirmation.value = false;
+    detailModal.value = false;
     resetForm();
     editNoteId.value = null;
+    selectedNote.value = null;
   };
 
   const saveNote = async () => {
@@ -81,17 +92,17 @@
   };
 
   // open confirmation
-  const deleteNote = async (id) => {
-    selectedNote.value = id;
+  const deleteNote = async (note) => {
+    selectedNote.value = note;
     deleteConfirmation.value = true;
   };
 
   // handleDelete
   const confirmDeleteNote = async () => {
-    notesStore.deleteNote(selectedNote);
-    deleteConfirmation.value = false;
-    selectedNote.value = null;
+    notesStore.deleteNote(selectedNote.value.id);
+    closeModal();
   };
+
 </script>
 
 <template>
@@ -125,27 +136,64 @@
     <!-- LIST OF NOTE -->
     <div class="space-y-4">
       <div
-        v-for="note in filteredNotes"
+        v-for="note in notesStore.filteredNotes(search, sort)"
         :key="note.id"
-        class="bg-white p-4 rounded-lg shadow group"
+        class="bg-white p-4 rounded-lg shadow group cursor-pointer"
+        @click="openDetailModal(note)"
       >
         <div class="flex justify-between gap-4">
           <div>
             <h3 class="text-lg font-semibold">{{ note.title }}</h3>
-            <p class="text-gray-600 mt-1">{{ note.content }}</p>
+            <p class="text-sm text-gray-500">
+              {{ new Date(note.createdAt).toLocaleDateString() }}
+            </p>
           </div>
 
           <div class="flex gap-1">
-            <button @click="openEditModal(note)" class="text-(--secondary) cursor-pointer">
+            <button @click.stop="openEditModal(note)" class="text-(--secondary) cursor-pointer">
               <Pencil />
             </button>
-            <button @click="deleteNote(note.id)" class="text-(--danger) cursor-pointer">
+            <button @click.stop="deleteNote(note)" class="text-(--danger) cursor-pointer">
               <Trash />
             </button>
           </div>
         </div>
       </div>
     </div>
+
+
+    <!-- NOTE DETAIL -->
+    <div
+      v-if="detailModal"
+      class="fixed inset-0 bg-black/50 flex justify-center items-center z-50"
+    >
+      <div class="bg-white rounded-lg p-6 w-full max-w-2xl">
+        <h2 class="text-2xl font-bold mb-2">{{ selectedNote.title }}</h2>
+
+        <p class="text-gray-600 mb-4 whitespace-pre-line">
+          {{ selectedNote.content }}
+        </p>
+
+        <div class="text-sm text-gray-500 mb-4">
+          <p>
+            <strong>Created:</strong> {{ new Date(selectedNote.createdAt).toLocaleString() }}
+          </p>
+          <p>
+            <strong>Updated:</strong> {{ new Date(selectedNote.updatedAt).toLocaleString() }}
+          </p>
+        </div>
+
+        <div class="flex justify-end gap-2 mt-6">
+          <button
+            @click="closeModal"
+            class="px-4 py-2 border rounded"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
 
     <!-- CREATE & UPDATE -->
     <div v-if="showModal" class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
@@ -198,5 +246,6 @@
         </div>
       </div>
     </div>
+
   </div>
 </template>
