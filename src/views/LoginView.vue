@@ -84,12 +84,10 @@
             class="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none"
             placeholder="Enter your username"
           />
-
           <p v-if="errors.username" class="text-(--danger) text-sm mt-1">
             {{ errors.username }}
           </p>
         </div>
-
 
         <!-- Password -->
         <div>
@@ -118,8 +116,19 @@
         >
           {{ isLoading ? "Logging in..." : "Login" }}
         </button>
-
       </form>
+
+      <!-- Signup -->
+      <p class="text-center text-sm text-gray-500 mt-4">
+        Don't have an account?
+        <button
+          @click="$router.push('/signup')"
+          class="text-(--primary) font-semibold hover:underline"
+        >
+          Sign up
+        </button>
+      </p>
+
     </div>
   </div>
 </template>

@@ -53,6 +53,29 @@ export const useAuthStore = defineStore("authStore", {
     },
 
 
+    async register(payload: { username: string; password: string }) {
+      this.loading = true;
+      this.error = null;
+
+      try {
+        const res = await api.post("/auth/register", payload);
+
+        if (!res.data) {
+          this.error = res.data?.message || "Registration failed";
+          throw new Error(this.error ?? "Registration failed");
+        }
+
+        this.user = res.data;
+
+      } catch (err: any) {
+        this.error = err.response?.data || "Registration failed";
+        throw err;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+
     logout() {
       this.user = null;
       this.token = null;
