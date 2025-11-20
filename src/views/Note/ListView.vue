@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, reactive, computed, onMounted } from "vue";
+  import { ref, reactive, onMounted, watch } from "vue";
   import { useNotesStore } from "@/stores/note";
   import { Pencil, Trash } from "lucide-vue-next";
 
@@ -16,39 +16,20 @@
   });
 
   const search = ref("");
+  const debouncedSearch = ref("");
   const sort = ref("createdAt");
+
+  let timeout = null;
+
+  watch(search, (val) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      debouncedSearch.value = val;
+    }, 500);
+  });
 
   onMounted(() => {
     notesStore.fetchNotes();
-  });
-
-  // filtered + sorted notes
-  const filteredNotes = computed(() => {
-    let notes = notesStore.notes;
-
-    if (search.value) {
-      notes = notes.filter(
-        (n) =>
-          n.title.toLowerCase().includes(search.value.toLowerCase()) ||
-          n.content.toLowerCase().includes(search.value.toLowerCase())
-      );
-    }
-
-    // sorting logic
-    switch (sort.value) {
-      case "title":
-        notes = notes.slice().sort((a, b) => a.title.localeCompare(b.title));
-        break;
-
-      case "createdAt":
-        notes = notes.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        break;
-
-      default:
-        break;
-    }
-
-    return notes;
   });
 
   const resetForm = () => {
@@ -136,7 +117,7 @@
     <!-- LIST OF NOTE -->
     <div class="space-y-4">
       <div
-        v-for="note in notesStore.filteredNotes(search, sort)"
+        v-for="note in notesStore.filteredNotes(debouncedSearch, sort)"
         :key="note.id"
         class="bg-white p-4 rounded-lg shadow group cursor-pointer"
         @click="openDetailModal(note)"
