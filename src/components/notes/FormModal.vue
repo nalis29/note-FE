@@ -1,8 +1,7 @@
-
 <script setup lang="ts">
-
+  import { reactive, computed, watch } from "vue"
+  import { z } from "zod"
   import type { Note } from "@/types/note"
-  import { computed, reactive, watch } from "vue"
 
   const props = defineProps({
     modelValue: Boolean,
@@ -12,13 +11,20 @@
     },
   })
 
-  const emit = defineEmits([ "update:modelValue", "submit" ])
+  const emit = defineEmits(["update:modelValue", "submit"])
 
   const isEdit = computed(() => !!props.note)
 
   const localForm = reactive({
     title: "",
     content: "",
+  })
+
+  const errors = reactive<{ title?: string; content?: string }>({})
+
+  const noteSchema = z.object({
+    title: z.string().min(1, "Title is required"),
+    content: z.string().optional(),
   })
 
   watch(
@@ -31,17 +37,32 @@
         localForm.title = ""
         localForm.content = ""
       }
+
+      errors.title = undefined
+      errors.content = undefined
     },
     { immediate: true }
   )
 
   const handleSubmit = () => {
-    emit("submit", {
-      title: localForm.title,
-      content: localForm.content,
-    })
+
+    errors.title = undefined
+    errors.content = undefined
+
+    const result = noteSchema.safeParse(localForm)
+
+    if (!result.success) {
+      result.error.issues.forEach((err) => {
+        if (err.path[0] === "title") errors.title = err.message
+        if (err.path[0] === "content") errors.content = err.message
+      })
+      return
+    }
+
+    emit("submit", result.data)
     emit("update:modelValue", false)
   }
+
 </script>
 
 
@@ -59,15 +80,21 @@
       <input
         v-model="localForm.title"
         placeholder="Title"
-        class="border border-(--primary) px-3 py-2 rounded w-full mb-2"
+        class="border border-(--primary) px-3 py-2 rounded w-full mb-1"
       />
+      <p v-if="errors.title" class="text-(--danger) text-sm mb-2">
+        {{ errors.title }}
+      </p>
 
       <textarea
         v-model="localForm.content"
         rows="5"
         placeholder="Content"
-        class="border border-(--primary) px-3 py-2 rounded w-full mb-2"
+        class="border border-(--primary) px-3 py-2 rounded w-full mb-1"
       ></textarea>
+      <p v-if="errors.content" class="text-(--danger) text-sm mb-2">
+        {{ errors.content }}
+      </p>
 
       <div class="flex justify-end gap-2 mt-4">
         <button
