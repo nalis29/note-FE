@@ -59,3 +59,6 @@ _ ```npm run dev```
 _```npm run build```
 
 _ ```npm run deploy```
+
+### Github page
+<https://nalis29.github.io/note-FE/#/>
