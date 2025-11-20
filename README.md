@@ -1,48 +1,61 @@
-# note-frontend
+# Notes App Frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+## Tech stacks
 
-## Recommended IDE Setup
+- **Vue 3**
+- **Vite**
+- **TypeScript**
+- **TailwindCSS**
+- **Pinia**
+- **Axios**
+- **Deployment:** GitHub Pages
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+---
 
-## Recommended Browser Setup
+## Features
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+### Note Management
 
-## Type Support for `.vue` Imports in TS
+- Create a note (title + optional content)
+- Read all notes
+- View a single note
+- Update an existing note
+- Delete a note
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+## Environment variables
 
-## Customize configuration
+Create a `.env` file in the project root by copying:
 
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
+```bash
+cp .env.example .env
 ```
 
-### Compile and Hot-Reload for Development
+Then update:
 
-```sh
-npm run dev
-```
+```VITE_API_URL=<actual-backend-api-url>```
 
-### Type-Check, Compile and Minify for Production
+Example:
 
-```sh
-npm run build
-```
+```VITE_API_URL=<http://localhost:5000/api>```
 
-### Lint with [ESLint](https://eslint.org/)
+## Installation
 
-```sh
-npm run lint
-```
+### Node Version
+
+_ ```nvm install```
+
+_ ``` nvm use ```
+
+### Install Package
+
+_ ```npm install```
+
+### Run the project
+
+_ ```npm run dev```
+
+### Deployment for github page
+
+_```npm run build```
+
+_ ```npm run deploy```
