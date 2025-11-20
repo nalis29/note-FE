@@ -11,7 +11,9 @@
     username: z
       .string()
       .min(3, "Username must be at least 3 characters"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    password: z
+      .string()
+      .nonempty("Password is required"),
   });
 
   // -- formdata ---
@@ -35,7 +37,10 @@
 
     if (!result.success) {
       result.error.issues.forEach((err) => {
-        console.log("err", err);
+      const field = err.path[0];
+      if (typeof field === "string" && field in errors.value) {
+        (errors.value as any)[field] = err.message;
+      }
       });
       return;
     }
