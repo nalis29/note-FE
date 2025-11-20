@@ -6,11 +6,12 @@
   import { ref, reactive, onMounted, watch } from "vue";
   import { useNotesStore } from "@/stores/note";
 
-
   const notesStore = useNotesStore();
+
   const detailModal = ref(false);
   const showModal = ref(false); // for both create and update
   const deleteConfirmation = ref(false);
+
   const editNoteId = ref(null);
   const selectedNote = ref(null);
 
